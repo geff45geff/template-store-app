@@ -1,0 +1,22 @@
+{
+  "name": "template_store_app",
+  "version": "1.0.0",
+  "description": "A web application for template store",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.7",
+    "body-parser": "^1.20.2",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

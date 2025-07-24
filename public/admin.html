@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Manage Templates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
+        .form-group button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        .form-group button:hover {
+            background-color: #218838;
+        }
+        #message, .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none; /* Hidden by default */
+            font-weight: bold;
+        }
+        #message.success, .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        #message.error, .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        #message.info, .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9e9e9;
+            font-weight: bold;
+        }
+        .action-buttons button {
+            padding: 8px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .logout-button {
+            display: block;
+            width: fit-content;
+            margin: 20px auto 0;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .logout-button:hover {
+            background-color: #5a6268;
+        }
+        /* Modal Styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel - Manage Templates</h1>
+        <a href="/logout" class="logout-button">Logout</a>
+
+        <h2>Upload New Template</h2>
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="name">Template Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Price (USD):</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="slug">Product Slug (unique identifier, e.g., 'my-cool-template'):</label>
+                <input type="text" id="slug" name="slug" required>
+            </div>
+            <div class="form-group">
+                <label for="templateFile">Template File (ZIP/PSD):</label>
+                <input type="file" id="templateFile" name="templateFile" accept=".zip,.psd" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Upload Template</button>
+            </div>
+        </form>
+
+        <div id="message"></div>
+
+        <h2>Existing Templates</h2>
+        <table id="productsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Slug</th>
+                    <th>File</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Products will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-group">
+                    <label for="editName">Template Name:</label>
+                    <input type="text" id="editName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Price (USD):</label>
+                    <input type="number" id="editPrice" name="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSlug">Product Slug:</label>
+                    <input type="text" id="editSlug" name="slug" required>
+                </div>
+                <!-- File upload is handled separately or not allowed in edit for simplicity -->
+                <div class="form-group">
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+            <div id="editMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadForm = document.getElementById('uploadForm');
+            const productsTableBody = document.querySelector('#productsTable tbody');
+            const messageDiv = document.getElementById('message'); // For upload/delete messages
+            const editModal = document.getElementById('editModal');
+            const closeButton = document.querySelector('.close-button');
+            const editForm = document.getElementById('editForm');
+            const editMessageDiv = document.getElementById('editMessage'); // For edit modal messages
+
+            // Function to display messages (reusable)
+            const showMessage = (msg, type, targetDiv) => {
+                targetDiv.textContent = msg;
+                targetDiv.className = `message ${type}`;
+                targetDiv.style.display = 'block';
+                setTimeout(() => {
+                    targetDiv.style.display = 'none';
+                    targetDiv.textContent = ''; // Clear message content
+                }, 5000);
+            };
+
+            const fetchProducts = async () => {
+                try {
+                    const response = await fetch('/products');
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            window.location.href = '/login'; // Redirect to login if unauthenticated
+                            return;
+                        }
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    const products = await response.json();
+                    renderProducts(products);
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    showMessage(`Failed to load products: ${error.message}`, 'error', messageDiv);
+                }
+            };
+
+            const renderProducts = (products) => {
+                productsTableBody.innerHTML = '';
+                if (products.length === 0) {
+                    productsTableBody.innerHTML = '<tr><td colspan="6">No templates uploaded yet.</td></tr>';
+                    return;
+                }
+                products.forEach(product => {
+                    const row = productsTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>$${product.price}</td>
+                        <td>${product.slug}</td>
+                        <td>${product.file_path}</td>
+                        <td class="action-buttons">
+                            <button class="edit-button" data-id="${product.id}">Edit</button>
+                            <button class="delete-button" data-id="${product.id}">Delete</button>
+                        </td>
+                    `;
+                });
+            };
+
+            // Initial load of products
+            fetchProducts();
+
+            // Upload Form Submission
+            uploadForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const formData = new FormData(uploadForm);
+
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        showMessage(result.message, 'success', messageDiv);
+                        uploadForm.reset();
+                        fetchProducts(); // Refresh the list
+                    } else {
+                        showMessage(result.error || 'An unknown error occurred during upload.', 'error', messageDiv);
+                    }
+                } catch (error) {
+                    showMessage(`Network error during upload: ${error.message}`, 'error', messageDiv);
+                    console.error('Error during upload:', error);
+                }
+            });
+
+            // Edit and Delete Button Handlers (Delegation)
+            productsTableBody.addEventListener('click', async (event) => {
+                if (event.target.classList.contains('edit-button')) {
+                    const productId = event.target.dataset.id;
+                    try {
+                        const response = await fetch(`/product/${productId}`);
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Failed to fetch product for editing.');
+                        }
+                        const product = await response.json();
+                        
+                        document.getElementById('editProductId').value = product.id;
+                        document.getElementById('editName').value = product.name;
+                        document.getElementById('editPrice').value = product.price;
+                        document.getElementById('editSlug').value = product.slug;
+                        editModal.style.display = 'flex'; // Show modal
+                    } catch (error) {
+                        showMessage(`Error fetching product for edit: ${error.message}`, 'error', messageDiv);
+                        console.error(error);
+                    }
+                } else if (event.target.classList.contains('delete-button')) {
+                    const productId = event.target.dataset.id;
+                    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                        try {
+                            const response = await fetch(`/product/${productId}`, {
+                                method: 'DELETE',
+                            });
+                            const result = await response.json();
+                            if (response.ok) {
+                                showMessage(result.message, 'success', messageDiv);
+                                fetchProducts(); // Refresh the list
+                            } else {
+                                showMessage(result.error || 'Failed to delete product.', 'error', messageDiv);
+                            }
+                        } catch (error) {
+                            showMessage(`Network error during delete: ${error.message}`, 'error', messageDiv);
+                            console.error('Error during delete:', error);
+                        }
+                    }
+                }
+            });
+
+            // Close Modal
+            closeButton.addEventListener('click', () => {
+                editModal.style.display = 'none';
+                editMessageDiv.style.display = 'none';
+                editMessageDiv.textContent = '';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target === editModal) {
+                    editModal.style.display = 'none';
+                    editMessageDiv.style.display = 'none';
+                    editMessageDiv.textContent = '';
+                }
+            });
+
+            // Edit Form Submission
+            editForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const productId = document.getElementById('editProductId').value;
+                const updatedData = {
+                    name: document.getElementById('editName').value,
+                    price: document.getElementById('editPrice').value,
+                    slug: document.getElementById('editSlug').value,
+                };
+
+                try {
+                    const response = await fetch(`/product/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updatedData),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        showMessage(result.message, 'success', editMessageDiv);
+                        fetchProducts(); // Refresh the list
+                        setTimeout(() => { // Close modal after showing success message
+                            editModal.style.display = 'none';
+                        }, 1000);
+                    } else {
+                        showMessage(result.error || 'Failed to update product.', 'error', editMessageDiv);
+                    }
+                } catch (error) {
+                    showMessage(`Network error during update: ${error.message}`, 'error', editMessageDiv);
+                    console.error('Error during update:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

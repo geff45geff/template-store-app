@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            color: #28a745; /* Green for success */
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .download-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            text-decoration: none; /* For anchor tag */
+            display: inline-block; /* For anchor tag */
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+            font-weight: bold;
+        }
+        #message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Successful!</h1>
+        <p>Thank you for your purchase. Your payment has been confirmed.</p>
+        <p>You can now download your purchased template.</p>
+        
+        <a id="downloadLink" class="download-button" href="#">Download Your Template</a>
+
+        <div id="message" class="message"></div>
+
+        <p><a href="/" class="back-button">Back to Store</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const downloadLink = document.getElementById('downloadLink');
+            const messageDiv = document.getElementById('message');
+
+            const showMessage = (msg, type) => {
+                messageDiv.textContent = msg;
+                messageDiv.className = type;
+                messageDiv.style.display = 'block';
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                    messageDiv.textContent = '';
+                }, 5000);
+            };
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const charge_id = urlParams.get('charge_id');
+            const slug = urlParams.get('slug'); // Get product slug from URL
+
+            if (charge_id && slug) {
+                downloadLink.href = `/download/${charge_id}/${slug}`;
+            } else {
+                showMessage('Download link is missing information. Please contact support.', 'error');
+                downloadLink.style.display = 'none'; // Hide download button if info is missing
+            }
+
+            downloadLink.addEventListener('click', (event) => {
+                if (downloadLink.href.includes('#')) { // If href hasn't been set correctly
+                    event.preventDefault();
+                    showMessage('Download link not ready. Please refresh the page or contact support.', 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
